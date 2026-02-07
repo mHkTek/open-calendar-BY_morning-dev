@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Calendar</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="calendar-header">
+      <button id="prev-month">◀</button>
+
+      <div id="calendar-titles">
+        <h1 id="month-title"></h1>
+      </div>
+
+      <button id="next-month">▶</button>
+    </div>
+
+    <!-- CALENDAR -->
+    <div id="calendar-container">
+      <div id="calendar"></div>
+    </div>
+
+    <!-- HOW TO USE (NOW AT THE BOTTOM, UNDER THE CALENDAR) -->
+    <div id="how-to-container">
+      <button id="how-to-btn">How to use this calendar</button>
+
+      <div id="instruction-panel" class="hidden">
+        <p>1) Please select the day(s) that you would like to share a morning devotional at BY</p>
+        <p>2) Need to make a change? Just press on your name, type 0 then press OK</p>
+        <p>3) After your name is removed you can select a new day</p>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+
+  </body>
+</html>
