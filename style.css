@@ -10,6 +10,7 @@ body {
   margin: 0;
   padding: 0.75rem;
   font-family: Arial, sans-serif;
+  background: #fff;
 }
 
 /* =============================
@@ -94,7 +95,7 @@ body {
 }
 
 /* =============================
-   DAY CELLS (SQUARE)
+   DAY CELLS
 ============================= */
 
 .day {
@@ -102,28 +103,30 @@ body {
   display: flex;
   flex-direction: column;
   padding: 0.25rem;
-
   border: 1px solid #ccc;
   border-radius: 6px;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
-/* Day number at top */
+/* Day number — TOP LEFT */
 .day-number {
   font-size: 0.7rem;
   font-weight: bold;
-  align-self: flex-start;   /* left */
+  text-align: left;
+  width: 100%;
 }
 
-/* Name stays centered */
+/* Name — CENTERED */
 .day-name {
   flex: 1;
   display: flex;
-  align-items: center;      /* vertical center */
-  justify-content: center;  /* horizontal center */
+  align-items: center;       /* vertical center */
+  justify-content: center;   /* horizontal center */
   width: 100%;
   font-size: clamp(0.65rem, 2.5vw, 0.9rem);
   text-align: center;
+  word-break: break-word;
 }
 
 /* =============================
@@ -136,7 +139,7 @@ body {
 
 .taken {
   background-color: #ffd6d6;
-  cursor: not-allowed;
+  cursor: pointer;
 }
 
 .disabled {
@@ -149,6 +152,51 @@ body {
   border: 2px solid #007aff;
   background-color: #e8f2ff;
   font-weight: bold;
+}
+
+/* =============================
+   MODAL
+============================= */
+
+#entry-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#entry-modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.modal-content p {
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-actions button {
+  padding: 0.45rem;
+  font-size: 0.9rem;
+  cursor: pointer;
 }
 
 /* =============================
