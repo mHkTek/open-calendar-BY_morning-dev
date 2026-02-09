@@ -12,6 +12,8 @@ const cancelEntryBtn = document.getElementById("cancel-entry-btn");
 
 let activeDateKey = null;
 
+const OFF_VALUE = "__OFF__";
+
 const monthNames = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December"
@@ -90,15 +92,15 @@ function renderCalendar() {
     const dayDiv = document.createElement("div");
     dayDiv.className = "day available";
 
-    const numberSpan = document.createElement("div");
-    numberSpan.className = "day-number";
-    numberSpan.textContent = day;
+    const numberDiv = document.createElement("div");
+    numberDiv.className = "day-number";
+    numberDiv.textContent = day;
 
-    const nameSpan = document.createElement("div");
-    nameSpan.className = "day-name";
+    const nameDiv = document.createElement("div");
+    nameDiv.className = "day-name";
 
-    dayDiv.appendChild(numberSpan);
-    dayDiv.appendChild(nameSpan);
+    dayDiv.appendChild(numberDiv);
+    dayDiv.appendChild(nameDiv);
 
     // Today highlight
     if (
@@ -109,7 +111,7 @@ function renderCalendar() {
       dayDiv.classList.add("today");
     }
 
-    // Disable days
+    // Disable certain weekdays
     if (weekday === 0 || weekday === 4 || weekday === 5 || weekday === 6) {
       dayDiv.classList.remove("available");
       dayDiv.classList.add("disabled");
@@ -117,28 +119,40 @@ function renderCalendar() {
       continue;
     }
 
-    // Reserved
+    // Reservation handling
     if (reservations[dateKey]) {
       dayDiv.classList.remove("available");
-      dayDiv.classList.add("taken");
-      nameSpan.textContent = reservations[dateKey];
+
+      if (reservations[dateKey] === OFF_VALUE) {
+        dayDiv.classList.add("off-day");
+        nameDiv.textContent = "No devotional today";
+      } else {
+        dayDiv.classList.add("taken");
+        nameDiv.textContent = reservations[dateKey];
+      }
     }
 
+    // Click handler
     dayDiv.addEventListener("click", () => {
-      // If already reserved → open modal
       if (reservations[dateKey]) {
-        openModal(
-          dateKey,
-          `${monthNames[month]} ${day}, ${year} — ${reservations[dateKey]}`
-        );
+        const label =
+          reservations[dateKey] === OFF_VALUE
+            ? `${monthNames[month]} ${day}, ${year} — No devotional today`
+            : `${monthNames[month]} ${day}, ${year} — ${reservations[dateKey]}`;
+
+        openModal(dateKey, label);
         return;
       }
 
-      // New reservation
-      const name = prompt("Enter your name:");
-      if (!name) return;
+      const input = prompt("Enter your name:");
+      if (!input) return;
 
-      reservations[dateKey] = name;
+      if (input.trim().toLowerCase() === "off") {
+        reservations[dateKey] = OFF_VALUE;
+      } else {
+        reservations[dateKey] = input.trim();
+      }
+
       saveReservations();
       renderCalendar();
     });
@@ -153,10 +167,21 @@ function renderCalendar() {
 editEntryBtn.addEventListener("click", () => {
   if (!activeDateKey) return;
 
-  const newName = prompt("Edit name:", reservations[activeDateKey]);
-  if (!newName) return;
+  const current = reservations[activeDateKey];
+  const promptLabel =
+    current === OFF_VALUE
+      ? "Type a name or OFF:"
+      : "Edit name (or type OFF):";
 
-  reservations[activeDateKey] = newName;
+  const newValue = prompt(promptLabel, current === OFF_VALUE ? "" : current);
+  if (!newValue) return;
+
+  if (newValue.trim().toLowerCase() === "off") {
+    reservations[activeDateKey] = OFF_VALUE;
+  } else {
+    reservations[activeDateKey] = newValue.trim();
+  }
+
   saveReservations();
   closeModal();
   renderCalendar();
@@ -184,19 +209,6 @@ prevBtn.addEventListener("click", () => {
 nextBtn.addEventListener("click", () => {
   currentDate.setMonth(currentDate.getMonth() + 1);
   renderCalendar();
-});
-
-// --------------------
-// HOW TO USE TOGGLE
-// --------------------
-const howToBtn = document.getElementById("how-to-btn");
-const instructionPanel = document.getElementById("instruction-panel");
-
-howToBtn.addEventListener("click", () => {
-  instructionPanel.classList.toggle("hidden");
-  howToBtn.textContent = instructionPanel.classList.contains("hidden")
-    ? "How to use this calendar"
-    : "Hide instructions";
 });
 
 // Initial render
