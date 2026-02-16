@@ -3,30 +3,31 @@ const monthTitle = document.getElementById("month-title");
 const prevBtn = document.getElementById("prev-month");
 const nextBtn = document.getElementById("next-month");
 
-/* MODAL ELEMENTS */
 const entryModal = document.getElementById("entry-modal");
 const modalDayLabel = document.getElementById("modal-day-label");
 const editEntryBtn = document.getElementById("edit-entry-btn");
 const removeEntryBtn = document.getElementById("remove-entry-btn");
 const cancelEntryBtn = document.getElementById("cancel-entry-btn");
 
-let activeDateKey = null;
+const calendarModal = document.getElementById("calendar-modal");
+const addToCalendarBtn = document.getElementById("add-to-calendar-btn");
+const skipCalendarBtn = document.getElementById("skip-calendar-btn");
+
+const confirmBtn = document.getElementById("confirm-selection-btn");
 
 const OFF_VALUE = "__OFF__";
 
+let activeDateKey = null;
+let selectedDates = [];
+let pendingCalendarData = null;
+
 const monthNames = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
 ];
 
-const weekdays = [
-  "Sunday", "Monday", "Tuesday",
-  "Wednesday", "Thursday", "Friday", "Saturday"
-];
+const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-// --------------------
-// STORAGE
-// --------------------
 const STORAGE_KEY = "openCalendarReservations";
 let reservations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
 
@@ -34,28 +35,57 @@ function saveReservations() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
 }
 
-// --------------------
-// STATE
-// --------------------
 let currentDate = new Date();
 
-// --------------------
-// MODAL CONTROLS
-// --------------------
-function openModal(dateKey, labelText) {
-  activeDateKey = dateKey;
-  modalDayLabel.textContent = labelText;
-  entryModal.classList.remove("hidden");
+/* ======================
+   ICS GENERATOR
+====================== */
+function generateMultiICS(name, datesArray) {
+  const timestamp = new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
+  let events = "";
+
+  datesArray.forEach(dateKey => {
+    const date = dateKey.replace(/-/g,"");
+    const uid = `${date}-bydevotional@calendar`;
+
+    events += `
+BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${timestamp}
+SUMMARY:BY Devotional – ${name}
+DTSTART:${date}T083000
+DTEND:${date}T093000
+DESCRIPTION:BY Devotional
+BEGIN:VALARM
+TRIGGER:-PT15H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BY Devotional in 15 hours
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BY Devotional in 2 hours
+END:VALARM
+END:VEVENT
+`;
+  });
+
+  const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//BY Devotionals//Calendar//EN
+${events}
+END:VCALENDAR`;
+
+  const blob = new Blob([ics], { type:"text/calendar;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "by-devotionals.ics";
+  link.click();
 }
 
-function closeModal() {
-  entryModal.classList.add("hidden");
-  activeDateKey = null;
-}
-
-// --------------------
-// RENDER
-// --------------------
+/* ======================
+   RENDER CALENDAR
+====================== */
 function renderCalendar() {
   calendar.innerHTML = "";
 
@@ -65,151 +95,154 @@ function renderCalendar() {
 
   monthTitle.textContent = `${monthNames[month]} ${year}`;
 
-  // Weekday headers
-  for (let day of weekdays) {
-    const header = document.createElement("div");
-    header.className = "weekday";
-    header.textContent = day;
-    calendar.appendChild(header);
-  }
+  weekdays.forEach(day => {
+    const h = document.createElement("div");
+    h.className = "weekday";
+    h.textContent = day;
+    calendar.appendChild(h);
+  });
 
-  const firstDay = new Date(year, month, 1);
-  const startingWeekday = firstDay.getDay();
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDay = new Date(year,month,1).getDay();
+  const daysInMonth = new Date(year,month+1,0).getDate();
 
-  // Empty cells
-  for (let i = 0; i < startingWeekday; i++) {
-    calendar.appendChild(document.createElement("div"));
-  }
+  for(let i=0;i<firstDay;i++) calendar.appendChild(document.createElement("div"));
 
-  // Days
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, month, day);
-    const weekday = date.getDay();
+  for(let day=1;day<=daysInMonth;day++){
+    const dateKey = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const weekday = new Date(year,month,day).getDay();
 
-    const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const cell = document.createElement("div");
+    cell.className="day available";
 
-    const dayDiv = document.createElement("div");
-    dayDiv.className = "day available";
+    const num = document.createElement("div");
+    num.className="day-number";
+    num.textContent=day;
 
-    const numberDiv = document.createElement("div");
-    numberDiv.className = "day-number";
-    numberDiv.textContent = day;
+    const nameDiv=document.createElement("div");
+    nameDiv.className="day-name";
 
-    const nameDiv = document.createElement("div");
-    nameDiv.className = "day-name";
+    cell.append(num,nameDiv);
 
-    dayDiv.appendChild(numberDiv);
-    dayDiv.appendChild(nameDiv);
-
-    // Today highlight
-    if (
-      day === today.getDate() &&
-      month === today.getMonth() &&
-      year === today.getFullYear()
-    ) {
-      dayDiv.classList.add("today");
+    if(day===today.getDate() && month===today.getMonth() && year===today.getFullYear()){
+      cell.classList.add("today");
     }
 
-    // Disable certain weekdays
-    if (weekday === 0 || weekday === 4 || weekday === 5 || weekday === 6) {
-      dayDiv.classList.remove("available");
-      dayDiv.classList.add("disabled");
-      calendar.appendChild(dayDiv);
+    if([0,4,5,6].includes(weekday)){
+      cell.className="day disabled";
+      calendar.appendChild(cell);
       continue;
     }
 
-    // Reservation handling
-    if (reservations[dateKey]) {
-      dayDiv.classList.remove("available");
+    if(reservations[dateKey]){
+      cell.classList.remove("available");
 
-      if (reservations[dateKey] === OFF_VALUE) {
-        dayDiv.classList.add("off-day");
-        nameDiv.textContent = "No devotional today";
+      if(reservations[dateKey]===OFF_VALUE){
+        cell.classList.add("off-day");
+        nameDiv.textContent="No devotional today";
       } else {
-        dayDiv.classList.add("taken");
-        nameDiv.textContent = reservations[dateKey];
+        cell.classList.add("taken");
+        nameDiv.textContent=reservations[dateKey];
       }
     }
 
-    // Click handler
-    dayDiv.addEventListener("click", () => {
-      if (reservations[dateKey]) {
-        const label =
-          reservations[dateKey] === OFF_VALUE
-            ? `${monthNames[month]} ${day}, ${year} — No devotional today`
-            : `${monthNames[month]} ${day}, ${year} — ${reservations[dateKey]}`;
-
-        openModal(dateKey, label);
+    cell.addEventListener("click",()=>{
+      if(reservations[dateKey]){
+        activeDateKey=dateKey;
+        modalDayLabel.textContent=`${monthNames[month]} ${day}`;
+        entryModal.classList.remove("hidden");
         return;
       }
 
-      const input = prompt("Enter your name:");
-      if (!input) return;
-
-      if (input.trim().toLowerCase() === "off") {
-        reservations[dateKey] = OFF_VALUE;
+      if(selectedDates.includes(dateKey)){
+        selectedDates=selectedDates.filter(d=>d!==dateKey);
+        cell.classList.remove("selected");
       } else {
-        reservations[dateKey] = input.trim();
+        selectedDates.push(dateKey);
+        cell.classList.add("selected");
       }
 
-      saveReservations();
-      renderCalendar();
+      confirmBtn.style.display = selectedDates.length>0 ? "inline-block":"none";
     });
 
-    calendar.appendChild(dayDiv);
+    calendar.appendChild(cell);
   }
 }
 
-// --------------------
-// MODAL BUTTON ACTIONS
-// --------------------
-editEntryBtn.addEventListener("click", () => {
-  if (!activeDateKey) return;
+/* ======================
+   CONFIRM BUTTON FLOW
+====================== */
+confirmBtn.onclick=()=>{
+  const name=prompt("Enter your name:");
+  if(!name) return;
 
-  const current = reservations[activeDateKey];
-  const promptLabel =
-    current === OFF_VALUE
-      ? "Type a name or OFF:"
-      : "Edit name (or type OFF):";
+  selectedDates.forEach(d=> reservations[d]=name.trim());
+  saveReservations();
 
-  const newValue = prompt(promptLabel, current === OFF_VALUE ? "" : current);
-  if (!newValue) return;
+  pendingCalendarData = {
+    name:name.trim(),
+    dates:[...selectedDates]
+  };
 
-  if (newValue.trim().toLowerCase() === "off") {
-    reservations[activeDateKey] = OFF_VALUE;
-  } else {
-    reservations[activeDateKey] = newValue.trim();
+  selectedDates=[];
+  confirmBtn.style.display="none";
+  renderCalendar();
+
+  calendarModal.classList.remove("hidden");
+};
+
+/* ======================
+   CALENDAR MODAL
+====================== */
+addToCalendarBtn.onclick=()=>{
+  if(pendingCalendarData){
+    generateMultiICS(pendingCalendarData.name,pendingCalendarData.dates);
   }
+  calendarModal.classList.add("hidden");
+  pendingCalendarData=null;
+};
+
+skipCalendarBtn.onclick=()=>{
+  calendarModal.classList.add("hidden");
+  pendingCalendarData=null;
+};
+
+/* ======================
+   EDIT / REMOVE
+====================== */
+editEntryBtn.onclick=()=>{
+  const val=prompt("Edit name or type OFF:",reservations[activeDateKey]);
+  if(!val) return;
+
+  reservations[activeDateKey]=
+    val.trim().toLowerCase()==="off"?OFF_VALUE:val.trim();
 
   saveReservations();
-  closeModal();
+  entryModal.classList.add("hidden");
   renderCalendar();
-});
+};
 
-removeEntryBtn.addEventListener("click", () => {
-  if (!activeDateKey) return;
-
+removeEntryBtn.onclick=()=>{
   delete reservations[activeDateKey];
   saveReservations();
-  closeModal();
+  entryModal.classList.add("hidden");
   renderCalendar();
-});
+};
 
-cancelEntryBtn.addEventListener("click", closeModal);
+cancelEntryBtn.onclick=()=>{
+  entryModal.classList.add("hidden");
+};
 
-// --------------------
-// NAVIGATION
-// --------------------
-prevBtn.addEventListener("click", () => {
-  currentDate.setMonth(currentDate.getMonth() - 1);
+/* ======================
+   NAVIGATION
+====================== */
+prevBtn.onclick=()=>{
+  currentDate.setMonth(currentDate.getMonth()-1);
   renderCalendar();
-});
+};
 
-nextBtn.addEventListener("click", () => {
-  currentDate.setMonth(currentDate.getMonth() + 1);
+nextBtn.onclick=()=>{
+  currentDate.setMonth(currentDate.getMonth()+1);
   renderCalendar();
-});
+};
 
-// Initial render
 renderCalendar();
