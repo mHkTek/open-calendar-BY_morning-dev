@@ -1,4 +1,11 @@
 /* =============================
+   GLOBAL SAFETY NET
+============================= */
+* {
+  box-sizing: border-box;
+}
+
+/* =============================
    GLOBAL BASE
 ============================= */
 
@@ -8,9 +15,10 @@
 
 body {
   margin: 0;
-  padding: 0.75rem;
+  padding: 0.35rem;
   font-family: Arial, sans-serif;
   background: #fff;
+  overflow-x: hidden;
 }
 
 /* =============================
@@ -71,8 +79,9 @@ body {
 
 #calendar-container {
   width: 100%;
-  max-width: 360px;
+  max-width: 100%;
   margin: 0 auto;
+  overflow-x: hidden;
 }
 
 /* =============================
@@ -81,8 +90,9 @@ body {
 
 #calendar {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 0.3rem;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.15rem;
+  width: 100%;
 }
 
 /* =============================
