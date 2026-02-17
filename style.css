@@ -163,7 +163,7 @@ body {
 }
 
 /* =============================
-   OFF DAY (NO DEVOTIONAL)
+   OFF DAY (NO DEVOTIONAL TODAY)
 ============================= */
 
 .off-day {
@@ -246,6 +246,29 @@ body {
 
 #calendar-modal.hidden {
   display: none;
+}
+
+
+/* =============================
+   CONFIRM SELECTED BUTTON
+============================= */
+#confirm-selection-btn {
+  padding: 14px 28px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+
+  background-color: #3b82f6;  /* Blue */
+  color: white;
+
+  transition: 0.2s ease;
+}
+
+#confirm-selection-btn:hover {
+  background-color: #2563eb;  /* Darker blue */
+  transform: translateY(-1px);
 }
 
 /* =============================

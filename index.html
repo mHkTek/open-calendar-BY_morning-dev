@@ -18,13 +18,20 @@
       <div id="calendar-subtitle">BY Morning Devotionals</div>
 
       <div id="instruction-panel">
-    <p>How To Use</p>
     <p>1) Pick available (green) day(s) to sign up to speak.</p>
     <p>2) Press Confirm Selected Day(s) to enter your name.</p>
     <p>3) Add appointment(s) to your phone’s calendar.</p>
     <p>4) To make changes, tap your name to edit or remove.</p>
-    <p>5) Type <strong>off</strong> to mark as “No devotional today”.</p>
       </div>
+
+
+  <!-- CONFIRM MULTI-SELECTION BUTTON -->
+  <div style="text-align:center; margin-top:10px;">
+    <button id="confirm-selection-btn" style="display:none;">
+      Confirm Selected Day(s)
+    </button>
+  </div>
+
     </div>
 
     <button id="next-month">▶</button>
@@ -33,13 +40,6 @@
   <!-- CALENDAR -->
   <div id="calendar-container">
     <div id="calendar"></div>
-  </div>
-
-  <!-- CONFIRM MULTI-SELECTION BUTTON -->
-  <div style="text-align:center; margin-top:10px;">
-    <button id="confirm-selection-btn" style="display:none;">
-      Confirm Selected Day(s)
-    </button>
   </div>
 
   <!-- EDIT / REMOVE MODAL -->
