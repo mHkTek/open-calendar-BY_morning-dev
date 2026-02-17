@@ -80,6 +80,7 @@ body {
 #calendar-container {
   width: 100%;
   max-width: 100%;
+  min-height: 65vh;
   margin: 0 auto;
   overflow-x: hidden;
 }
