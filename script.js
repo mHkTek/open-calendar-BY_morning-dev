@@ -4,6 +4,7 @@ const prevBtn = document.getElementById("prev-month");
 const nextBtn = document.getElementById("next-month");
 
 const entryModal = document.getElementById("entry-modal");
+const modalOverlay = document.getElementById("modal-overlay");
 const modalDayLabel = document.getElementById("modal-day-label");
 const editEntryBtn = document.getElementById("edit-entry-btn");
 const removeEntryBtn = document.getElementById("remove-entry-btn");
@@ -37,6 +38,52 @@ function saveReservations() {
 
 function updateConfirmButton() {
   confirmBtn.classList.toggle("hidden", selectedDates.length === 0);
+}
+
+/* ======================
+   ICS GENERATOR
+====================== */
+function generateMultiICS(name, datesArray) {
+  const timestamp = new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
+  let events = "";
+
+  datesArray.forEach(dateKey => {
+    const date = dateKey.replace(/-/g,"");
+    const uid = `${date}-bydevotional@calendar`;
+
+    events += `
+BEGIN:VEVENT
+UID:${uid}
+DTSTAMP:${timestamp}
+SUMMARY:BY Devotional – ${name}
+DTSTART:${date}T083000
+DTEND:${date}T093000
+DESCRIPTION:BY Devotional
+BEGIN:VALARM
+TRIGGER:-PT15H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BY Devotional in 15 hours
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Reminder: BY Devotional in 2 hours
+END:VALARM
+END:VEVENT
+`;
+  });
+
+  const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//BY Devotionals//Calendar//EN
+${events}
+END:VCALENDAR`;
+
+  const blob = new Blob([ics], { type:"text/calendar;charset=utf-8" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "by-devotionals.ics";
+  link.click();
 }
 
 /* ====================== RENDER ====================== */
@@ -96,7 +143,7 @@ function renderCalendar() {
 
       if(reservations[dateKey]===OFF_VALUE){
         cell.classList.add("off-day");
-        nameDiv.textContent="No devotional today";
+        nameDiv.textContent="No meeting today";
       } else {
         cell.classList.add("taken");
         nameDiv.textContent=reservations[dateKey];
@@ -144,9 +191,16 @@ confirmBtn.onclick=()=>{
 };
 
 /* ====================== MODALS ====================== */
-addToCalendarBtn.onclick=()=>{
+addToCalendarBtn.onclick = () => {
+  if (pendingCalendarData) {
+    generateMultiICS(
+      pendingCalendarData.name,
+      pendingCalendarData.dates
+    );
+  }
+
   calendarModal.classList.add("hidden");
-  pendingCalendarData=null;
+  pendingCalendarData = null;
 };
 
 skipCalendarBtn.onclick=()=>{
@@ -154,26 +208,30 @@ skipCalendarBtn.onclick=()=>{
   pendingCalendarData=null;
 };
 
-editEntryBtn.onclick=()=>{
-  const val=prompt("Edit name or type OFF:",reservations[activeDateKey]);
-  if(!val) return;
+editEntryBtn.onclick = () => {
+  const val = prompt("Edit name or type OFF:", reservations[activeDateKey]);
+  if (!val) return;
 
-  reservations[activeDateKey]=
-    val.trim().toLowerCase()==="off"?OFF_VALUE:val.trim();
+  reservations[activeDateKey] =
+    val.trim().toLowerCase() === "off"
+      ? OFF_VALUE
+      : val.trim();
 
   saveReservations();
-  entryModal.classList.add("hidden");
   renderCalendar();
+
+  entryModal.classList.add("hidden");
 };
 
-removeEntryBtn.onclick=()=>{
+removeEntryBtn.onclick = () => {
   delete reservations[activeDateKey];
   saveReservations();
-  entryModal.classList.add("hidden");
   renderCalendar();
+
+  entryModal.classList.add("hidden");
 };
 
-cancelEntryBtn.onclick=()=>{
+cancelEntryBtn.onclick = () => {
   entryModal.classList.add("hidden");
 };
 

@@ -89,6 +89,8 @@ body {
   border-radius: 6px;
   cursor: pointer;
   transition: 0.15s ease;
+
+  overflow: hidden;
 }
 
 .day-number {
@@ -102,9 +104,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(0.83rem, 2.5vw, 0.83rem);
+
+  font-size: clamp(0.65rem, 2.2vw, 0.75rem);
+  line-height: 1.05;
+
   text-align: center;
   word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .available { background-color: #e6f7e6; }
@@ -147,4 +153,67 @@ body {
 
 @media (orientation: landscape) {
   #calendar-container { max-width:520px; }
+}
+
+/* =============================
+   MODAL
+============================= */
+
+#entry-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+#entry-modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.modal-content p {
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-actions button {
+  padding: 0.45rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* =============================
+   ADD TO CALENDAR MODAL
+============================= */
+
+#calendar-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+}
+
+#calendar-modal.hidden {
+  display: none;
 }
