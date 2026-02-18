@@ -27,6 +27,7 @@ body {
 
 #calendar-header {
   display: flex;
+  margin-top: 2px
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
@@ -34,9 +35,11 @@ body {
 }
 
 #calendar-header button {
-  padding: 0.3rem 0.6rem;
-  font-size: 1rem;
-  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  padding: 0 8px;
+  height: 32px;
 }
 
 #calendar-titles {
