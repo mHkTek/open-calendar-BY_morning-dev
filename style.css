@@ -1,13 +1,4 @@
-/* =============================
-   GLOBAL SAFETY NET
-============================= */
-* {
-  box-sizing: border-box;
-}
-
-/* =============================
-   GLOBAL BASE
-============================= */
+* { box-sizing: border-box; }
 
 :root {
   font-size: clamp(14px, 3.5vw, 18px);
@@ -21,25 +12,22 @@ body {
   overflow-x: hidden;
 }
 
-/* =============================
-   HEADER
-============================= */
-
 #calendar-header {
   display: flex;
-  margin-top: 2px
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: 0.4rem;
 }
 
-#calendar-header button {
+#prev-month,
+#next-month {
   background: none;
   border: none;
   font-size: 1.3rem;
   padding: 0 8px;
   height: 32px;
+  cursor: pointer;
 }
 
 #calendar-titles {
@@ -59,12 +47,9 @@ body {
   margin-top: 0.1rem;
 }
 
-/* =============================
-   INSTRUCTIONS
-============================= */
-
 #instruction-panel {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  line-height: 1.25;
   color: #555;
   text-align: left;
   margin-top: 0.3rem;
@@ -73,34 +58,20 @@ body {
 }
 
 #instruction-panel p {
-  margin: 0.15rem 0;
+  margin: 3px 0;
 }
-
-/* =============================
-   CALENDAR CONTAINER
-============================= */
 
 #calendar-container {
   width: 100%;
-  max-width: 100%;
   margin: 0 auto;
 }
-
-/* =============================
-   CALENDAR GRID
-============================= */
 
 #calendar {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 0.15rem;
-  padding-bottom: 90px;
   width: 100%;
 }
-
-/* =============================
-   WEEKDAY HEADERS
-============================= */
 
 .weekday {
   font-size: clamp(0.6rem, 2.5vw, 0.8rem);
@@ -108,10 +79,6 @@ body {
   text-align: center;
   padding: 0.15rem 0;
 }
-
-/* =============================
-   DAY CELLS
-============================= */
 
 .day {
   aspect-ratio: 1 / 1.15;
@@ -121,175 +88,63 @@ body {
   border: 1px solid #ccc;
   border-radius: 6px;
   cursor: pointer;
-  box-sizing: border-box;
   transition: 0.15s ease;
 }
 
-/* Day number — TOP LEFT */
 .day-number {
   font-size: 0.7rem;
   font-weight: bold;
   text-align: left;
-  width: 100%;
 }
 
-/* Name — CENTERED */
 .day-name {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
   font-size: clamp(0.83rem, 2.5vw, 0.83rem);
   text-align: center;
   word-break: break-word;
 }
 
-/* =============================
-   STATES
-============================= */
+.available { background-color: #e6f7e6; }
+.taken { background-color: #ffd6d6; }
+.disabled { background-color: #eee; color:#999; cursor:not-allowed; }
+.today { border:2px solid #0a0500; font-weight:bold; }
 
-.available {
-  background-color: #e6f7e6;
-}
-
-.taken {
-  background-color: #ffd6d6;
-  cursor: pointer;
-}
-
-.disabled {
-  background-color: #eee;
-  color: #999;
-  cursor: not-allowed;
-}
-
-.today {
-  border: 2px solid #0a0500;
-  font-weight: bold;
-}
-
-/* 🔵 MULTI-DAY SELECTED STATE */
 .selected {
-  outline: 3px solid #007aff;
-  background-color: #d0e8ff !important;
+  outline:3px solid #007aff;
+  background-color:#d0e8ff !important;
 }
-
-/* =============================
-   OFF DAY (NO DEVOTIONAL TODAY)
-============================= */
 
 .off-day {
-  background:
-    repeating-linear-gradient(
-      25deg,
-      #9bb8eb,
-      #9bb8eb 10px,
-      #d4d980 10px,
-      #d4d980 20px
-    );
-  color: #594e4e;
-  cursor: not-allowed;
+  background: repeating-linear-gradient(
+    25deg,#9bb8eb,#9bb8eb 10px,#d4d980 10px,#d4d980 20px
+  );
+  color:#594e4e;
 }
 
-.off-day .day-name {
-  font-size: clamp(0.75rem, 2vw, 0.8rem);
-  font-weight: normal;
-  line-height: 1.1;
-}
-
-/* =============================
-   MODAL
-============================= */
-
-#entry-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-#entry-modal.hidden {
-  display: none;
-}
-
-.modal-content {
-  background: #fff;
-  padding: 1rem;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 320px;
-  text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-}
-
-.modal-content p {
-  margin-bottom: 0.8rem;
-  font-size: 0.9rem;
-}
-
-.modal-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.modal-actions button {
-  padding: 0.45rem;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-/* =============================
-   ADD TO CALENDAR MODAL
-============================= */
-
-#calendar-modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1100;
-}
-
-#calendar-modal.hidden {
-  display: none;
-}
-
-
-/* =============================
-   CONFIRM SELECTED BUTTON
-============================= */
 #confirm-selection-btn {
-  padding: 14px 28px;
-  font-size: 18px;
-  font-weight: 600;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-
-  background-color: #3b82f6;  /* Blue */
-  color: white;
-
-  transition: 0.2s ease;
+  display:block;
+  width:100%;
+  margin:0.5rem 0 0.6rem 0;
+  padding:6px 14px;
+  font-size:14px;
+  font-weight:600;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
+  background-color:#3b82f6;
+  color:white;
 }
 
 #confirm-selection-btn:hover {
-  background-color: #2563eb;  /* Darker blue */
-  transform: translateY(-1px);
+  background-color:#2563eb;
+  transform:translateY(-1px);
 }
 
-/* =============================
-   LANDSCAPE
-============================= */
+.hidden { display:none !important; }
 
 @media (orientation: landscape) {
-  #calendar-container {
-    max-width: 520px;
-  }
+  #calendar-container { max-width:520px; }
 }

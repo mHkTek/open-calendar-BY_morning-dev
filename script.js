@@ -16,10 +16,13 @@ const skipCalendarBtn = document.getElementById("skip-calendar-btn");
 const confirmBtn = document.getElementById("confirm-selection-btn");
 
 const OFF_VALUE = "off";
+const STORAGE_KEY = "openCalendarReservations";
 
 let activeDateKey = null;
 let selectedDates = [];
 let pendingCalendarData = null;
+let reservations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+let currentDate = new Date();
 
 const monthNames = [
   "January","February","March","April","May","June",
@@ -28,66 +31,19 @@ const monthNames = [
 
 const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-const STORAGE_KEY = "openCalendarReservations";
-let reservations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-
 function saveReservations() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
 }
 
-let currentDate = new Date();
-
-/* ======================
-   ICS GENERATOR
-====================== */
-function generateMultiICS(name, datesArray) {
-  const timestamp = new Date().toISOString().replace(/[-:]/g,"").split(".")[0]+"Z";
-  let events = "";
-
-  datesArray.forEach(dateKey => {
-    const date = dateKey.replace(/-/g,"");
-    const uid = `${date}-bydevotional@calendar`;
-
-    events += `
-BEGIN:VEVENT
-UID:${uid}
-DTSTAMP:${timestamp}
-SUMMARY:BY Devotional – ${name}
-DTSTART:${date}T083000
-DTEND:${date}T093000
-DESCRIPTION:BY Devotional
-BEGIN:VALARM
-TRIGGER:-PT15H
-ACTION:DISPLAY
-DESCRIPTION:Reminder: BY Devotional in 15 hours
-END:VALARM
-BEGIN:VALARM
-TRIGGER:-PT2H
-ACTION:DISPLAY
-DESCRIPTION:Reminder: BY Devotional in 2 hours
-END:VALARM
-END:VEVENT
-`;
-  });
-
-  const ics = `BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//BY Devotionals//Calendar//EN
-${events}
-END:VCALENDAR`;
-
-  const blob = new Blob([ics], { type:"text/calendar;charset=utf-8" });
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "by-devotionals.ics";
-  link.click();
+function updateConfirmButton() {
+  confirmBtn.classList.toggle("hidden", selectedDates.length === 0);
 }
 
-/* ======================
-   RENDER CALENDAR
-====================== */
+/* ====================== RENDER ====================== */
 function renderCalendar() {
   calendar.innerHTML = "";
+  selectedDates = [];
+  updateConfirmButton();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -105,7 +61,9 @@ function renderCalendar() {
   const firstDay = new Date(year,month,1).getDay();
   const daysInMonth = new Date(year,month+1,0).getDate();
 
-  for(let i=0;i<firstDay;i++) calendar.appendChild(document.createElement("div"));
+  for(let i=0;i<firstDay;i++){
+    calendar.appendChild(document.createElement("div"));
+  }
 
   for(let day=1;day<=daysInMonth;day++){
     const dateKey = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
@@ -161,50 +119,32 @@ function renderCalendar() {
         cell.classList.add("selected");
       }
 
-      confirmBtn.style.display = selectedDates.length>0 ? "inline-block":"none";
+      updateConfirmButton();
     });
 
     calendar.appendChild(cell);
   }
 }
 
-/* ======================
-   CONFIRM BUTTON FLOW
-====================== */
+/* ====================== CONFIRM ====================== */
 confirmBtn.onclick=()=>{
   const name = prompt("Enter your name:");
   if(!name) return;
 
   const cleaned = name.trim();
-
-  const finalValue =
-    cleaned.toLowerCase() === "off"
-      ? OFF_VALUE
-      : cleaned;
+  const finalValue = cleaned.toLowerCase()==="off" ? OFF_VALUE : cleaned;
 
   selectedDates.forEach(d => reservations[d] = finalValue);
-
   saveReservations();
 
-  pendingCalendarData = {
-    name: finalValue,
-    dates: [...selectedDates]
-  };
+  pendingCalendarData = { name: finalValue, dates:[...selectedDates] };
 
-  selectedDates = [];
-  confirmBtn.style.display = "none";
   renderCalendar();
-
   calendarModal.classList.remove("hidden");
 };
 
-/* ======================
-   CALENDAR MODAL
-====================== */
+/* ====================== MODALS ====================== */
 addToCalendarBtn.onclick=()=>{
-  if(pendingCalendarData){
-    generateMultiICS(pendingCalendarData.name,pendingCalendarData.dates);
-  }
   calendarModal.classList.add("hidden");
   pendingCalendarData=null;
 };
@@ -214,9 +154,6 @@ skipCalendarBtn.onclick=()=>{
   pendingCalendarData=null;
 };
 
-/* ======================
-   EDIT / REMOVE
-====================== */
 editEntryBtn.onclick=()=>{
   const val=prompt("Edit name or type OFF:",reservations[activeDateKey]);
   if(!val) return;
@@ -240,9 +177,7 @@ cancelEntryBtn.onclick=()=>{
   entryModal.classList.add("hidden");
 };
 
-/* ======================
-   NAVIGATION
-====================== */
+/* ====================== NAVIGATION ====================== */
 prevBtn.onclick=()=>{
   currentDate.setMonth(currentDate.getMonth()-1);
   renderCalendar();

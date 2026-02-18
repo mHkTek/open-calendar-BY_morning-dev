@@ -18,19 +18,16 @@
       <div id="calendar-subtitle">BY Morning Devotionals</div>
 
       <div id="instruction-panel">
-    <p>1) Pick available (green) day(s) to sign up to speak.</p>
-    <p>2) Press Confirm Selected Day(s) to enter your name.</p>
-    <p>3) Add appointment(s) to your phone’s calendar.</p>
-    <p>4) To make changes, tap your name to edit or remove.</p>
+        <p>1) Pick available (green) day(s) to sign up to speak.</p>
+        <p>2) Press Confirm Selected Day(s) to enter your name.</p>
+        <p>3) Add appointment(s) to your phone’s calendar.</p>
+        <p>4) To make changes, tap your name to edit or remove.</p>
       </div>
 
-
-  <!-- CONFIRM MULTI-SELECTION BUTTON -->
-  <div style="text-align:center; margin-top:10px;">
-    <button id="confirm-selection-btn" style="display:none;">
-      Confirm Selected Day(s)
-    </button>
-  </div>
+      <!-- CONFIRM BUTTON -->
+      <button id="confirm-selection-btn" class="hidden">
+        Confirm Selected Day(s)
+      </button>
 
     </div>
 
@@ -46,7 +43,6 @@
   <div id="entry-modal" class="hidden">
     <div class="modal-content">
       <p id="modal-day-label"></p>
-
       <div class="modal-actions">
         <button id="edit-entry-btn">Edit Entry</button>
         <button id="remove-entry-btn">Remove Entry</button>
@@ -58,7 +54,7 @@
   <!-- ADD TO CALENDAR MODAL -->
   <div id="calendar-modal" class="hidden">
     <div class="modal-content">
-      <p>Would you like to add the appointment(s) to your phone calendar to get reminders?</p>
+      <p>Would you like to add the appointment(s) to your phone calendar?</p>
       <div class="modal-actions">
         <button id="add-to-calendar-btn">Add to Calendar</button>
         <button id="skip-calendar-btn">Skip</button>
