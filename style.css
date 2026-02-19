@@ -7,7 +7,7 @@
 body {
   margin: 0;
   padding: 0.35rem;
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: #fff;
   overflow-x: hidden;
 }
@@ -18,6 +18,7 @@ body {
   justify-content: space-between;
   gap: 0.5rem;
   margin-bottom: 0.4rem;
+  padding: 0.3rem 0.5rem;
 }
 
 #prev-month,
@@ -37,6 +38,8 @@ body {
 
 #month-title {
   font-size: clamp(1.2rem, 5vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: -0.3px;
   margin: 0;
 }
 
@@ -48,12 +51,12 @@ body {
 }
 
 #instruction-panel {
-  font-size: 0.85rem;
+  font-size: 0.76rem;
   line-height: 1.25;
   color: #555;
   text-align: left;
   margin-top: 0.3rem;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.2rem;
   line-height: 1.3;
 }
 
@@ -84,12 +87,16 @@ body {
   aspect-ratio: 1 / 1.15;
   display: flex;
   flex-direction: column;
-  padding: 0.25rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: 0.15s ease;
+  padding: 0.35rem;
 
+  border: none;
+  border-radius: 14px;
+
+  background: #f2f2f7;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+
+  cursor: pointer;
+  transition: all 0.15s ease;
   overflow: hidden;
 }
 
@@ -103,24 +110,48 @@ body {
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
 
-  font-size: clamp(0.65rem, 2.2vw, 0.75rem);
+  font-size: clamp(0.64rem, 2.2vw, 0.75rem);
   line-height: 1.05;
 
-  text-align: center;
+  text-align: left;
   word-break: break-word;
   overflow-wrap: anywhere;
 }
 
-.available { background-color: #e6f7e6; }
-.taken { background-color: #ffd6d6; }
-.disabled { background-color: #eee; color:#999; cursor:not-allowed; }
-.today { border:2px solid #0a0500; font-weight:bold; }
+.available {
+  background: #e6f7e6;
+}
+
+.taken {
+  background: #ffdede;
+}
+
+.disabled {
+  background: #e5e5ea;
+  color: #b0b0b0;
+  cursor: not-allowed;
+}
+
+.today .day-number {
+  background: #007aff;
+  color: white;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 600;
+  margin-bottom: 2px;
+}
 
 .selected {
-  outline:3px solid #007aff;
-  background-color:#d0e8ff !important;
+  box-shadow: 0 0 0 2px #007aff inset;
+  background: #e5f1ff;
 }
 
 .off-day {
@@ -131,22 +162,24 @@ body {
 }
 
 #confirm-selection-btn {
-  display:block;
-  width:100%;
-  margin:0.5rem 0 0.6rem 0;
-  padding:6px 14px;
-  font-size:14px;
-  font-weight:600;
-  border-radius:8px;
-  border:none;
-  cursor:pointer;
-  background-color:#3b82f6;
-  color:white;
+  width: 100%;
+  margin: 0.5rem 0 0.6rem 0;
+  padding: 8px 14px;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  border-radius: 12px;
+  border: none;
+
+  background: #007aff;
+  color: white;
+
+  transition: background 0.15s ease;
 }
 
-#confirm-selection-btn:hover {
-  background-color:#2563eb;
-  transform:translateY(-1px);
+#confirm-selection-btn:active {
+  background: #005ecb;
 }
 
 .hidden { display:none !important; }

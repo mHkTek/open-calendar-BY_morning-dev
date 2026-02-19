@@ -98,12 +98,14 @@ function renderCalendar() {
 
   monthTitle.textContent = `${monthNames[month]} ${year}`;
 
-  weekdays.forEach(day => {
-    const h = document.createElement("div");
-    h.className = "weekday";
-    h.textContent = day;
-    calendar.appendChild(h);
-  });
+const shortWeekdays = ["S","M","T","W","T","F","S"];
+
+shortWeekdays.forEach(day => {
+  const h = document.createElement("div");
+  h.className = "weekday";
+  h.textContent = day;
+  calendar.appendChild(h);
+});
 
   const firstDay = new Date(year,month,1).getDay();
   const daysInMonth = new Date(year,month+1,0).getDate();
