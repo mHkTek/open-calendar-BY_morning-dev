@@ -130,15 +130,21 @@ shortWeekdays.forEach(day => {
 
     cell.append(num,nameDiv);
 
-    if(day===today.getDate() && month===today.getMonth() && year===today.getFullYear()){
-      cell.classList.add("today");
-    }
+const isToday =
+  day === today.getDate() &&
+  month === today.getMonth() &&
+  year === today.getFullYear();
 
-    if([0,4,5,6].includes(weekday)){
-      cell.className="day disabled";
-      calendar.appendChild(cell);
-      continue;
-    }
+if ([0,4,5,6].includes(weekday)) {
+  cell.className = "day disabled";
+  if (isToday) cell.classList.add("today");
+  calendar.appendChild(cell);
+  continue;
+}
+
+if (isToday) {
+  cell.classList.add("today");
+}
 
     if(reservations[dateKey]){
       cell.classList.remove("available");
