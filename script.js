@@ -254,4 +254,14 @@ nextBtn.onclick=()=>{
   renderCalendar();
 };
 
+/* ======================
+   LIGHT / DARK MODE
+====================== */
+
+const modeToggle = document.getElementById("mode-toggle");
+
+modeToggle.addEventListener("change", () => {
+  document.body.classList.toggle("dark-mode", modeToggle.checked);
+});
+
 renderCalendar();

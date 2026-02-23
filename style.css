@@ -46,7 +46,7 @@ body {
 #calendar-subtitle {
   font-size: 1rem;
   font-weight: bold;
-  color: #130ca6;
+  color: #3375F1;
   margin-top: 0.1rem;
 }
 
@@ -135,7 +135,7 @@ body {
 }
 
 .today .day-number {
-  background: #007aff;
+  background: #3375F1;
   color: white;
   width: 22px;
   height: 22px;
@@ -249,4 +249,107 @@ body {
 
 #calendar-modal.hidden {
   display: none;
+}
+
+/* =============================
+   LIGHT / DARK MODE TOGGLE
+============================= */
+
+#mode-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 12px 0 20px 0;
+  font-size: 0.85rem;
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #ccc;
+  transition: 0.2s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  top: 3px;
+  background-color: white;
+  transition: 0.2s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #007aff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* =============================
+   DARK MODE COLORS
+============================= */
+
+body.dark-mode {
+  background: #000;
+}
+
+/* Month + Year */
+body.dark-mode #month-title {
+  color: white;
+}
+
+/* Instructions */
+body.dark-mode #instruction-panel {
+  color: white;
+}
+
+/* Weekdays */
+body.dark-mode .weekday {
+  color: white;
+}
+
+/* Green + Red Cells Text */
+body.dark-mode .available,
+body.dark-mode .taken {
+  color: #000;
+}
+
+/* Day Numbers + Names in those cells */
+body.dark-mode .available .day-number,
+body.dark-mode .taken .day-number,
+body.dark-mode .available .day-name,
+body.dark-mode .taken .day-name {
+  color: #000;
+}
+
+/* Light Mode / Dark Mode label text → white */
+body.dark-mode #mode-toggle-wrapper {
+  color: #fff;
+}
+
+/* Keep TODAY number white in dark mode */
+body.dark-mode .today .day-number {
+  color: #fff !important;
 }
