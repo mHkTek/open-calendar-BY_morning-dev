@@ -31,6 +31,12 @@ body {
   cursor: pointer;
 }
 
+/* Force month navigation arrows to blue */
+#prev-month,
+#next-month {
+  color: #3375F1;
+}
+
 #calendar-titles {
   text-align: center;
   flex: 1;
@@ -121,11 +127,11 @@ body {
 }
 
 .available {
-  background: #e6f7e6;
+  background: #cafaca;
 }
 
 .taken {
-  background: #ffdede;
+  background: #ffc2c2;
 }
 
 .disabled {
