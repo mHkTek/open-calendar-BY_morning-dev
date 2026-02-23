@@ -15,7 +15,7 @@ const skipCalendarBtn = document.getElementById("skip-calendar-btn");
 
 const confirmBtn = document.getElementById("confirm-selection-btn");
 
-const OFF_VALUE = "__OFF__";
+const OFF_VALUE = "off";
 
 let activeDateKey = null;
 let selectedDates = [];
