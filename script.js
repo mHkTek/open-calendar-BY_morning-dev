@@ -172,19 +172,27 @@ function renderCalendar() {
    CONFIRM BUTTON FLOW
 ====================== */
 confirmBtn.onclick=()=>{
-  const name=prompt("Enter your name:");
+  const name = prompt("Enter your name:");
   if(!name) return;
 
-  selectedDates.forEach(d=> reservations[d]=name.trim());
+  const cleaned = name.trim();
+
+  const finalValue =
+    cleaned.toLowerCase() === "off"
+      ? OFF_VALUE
+      : cleaned;
+
+  selectedDates.forEach(d => reservations[d] = finalValue);
+
   saveReservations();
 
   pendingCalendarData = {
-    name:name.trim(),
-    dates:[...selectedDates]
+    name: finalValue,
+    dates: [...selectedDates]
   };
 
-  selectedDates=[];
-  confirmBtn.style.display="none";
+  selectedDates = [];
+  confirmBtn.style.display = "none";
   renderCalendar();
 
   calendarModal.classList.remove("hidden");
