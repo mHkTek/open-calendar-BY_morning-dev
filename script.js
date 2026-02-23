@@ -4,7 +4,6 @@ const prevBtn = document.getElementById("prev-month");
 const nextBtn = document.getElementById("next-month");
 
 const entryModal = document.getElementById("entry-modal");
-const modalOverlay = document.getElementById("modal-overlay");
 const modalDayLabel = document.getElementById("modal-day-label");
 const editEntryBtn = document.getElementById("edit-entry-btn");
 const removeEntryBtn = document.getElementById("remove-entry-btn");
@@ -16,14 +15,11 @@ const skipCalendarBtn = document.getElementById("skip-calendar-btn");
 
 const confirmBtn = document.getElementById("confirm-selection-btn");
 
-const OFF_VALUE = "off";
-const STORAGE_KEY = "openCalendarReservations";
+const OFF_VALUE = "__OFF__";
 
 let activeDateKey = null;
 let selectedDates = [];
 let pendingCalendarData = null;
-let reservations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-let currentDate = new Date();
 
 const monthNames = [
   "January","February","March","April","May","June",
@@ -32,13 +28,14 @@ const monthNames = [
 
 const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
+const STORAGE_KEY = "openCalendarReservations";
+let reservations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+
 function saveReservations() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(reservations));
 }
 
-function updateConfirmButton() {
-  confirmBtn.classList.toggle("hidden", selectedDates.length === 0);
-}
+let currentDate = new Date();
 
 /* ======================
    ICS GENERATOR
@@ -86,11 +83,11 @@ END:VCALENDAR`;
   link.click();
 }
 
-/* ====================== RENDER ====================== */
+/* ======================
+   RENDER CALENDAR
+====================== */
 function renderCalendar() {
   calendar.innerHTML = "";
-  selectedDates = [];
-  updateConfirmButton();
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -98,21 +95,17 @@ function renderCalendar() {
 
   monthTitle.textContent = `${monthNames[month]} ${year}`;
 
-const shortWeekdays = ["S","M","T","W","T","F","S"];
-
-shortWeekdays.forEach(day => {
-  const h = document.createElement("div");
-  h.className = "weekday";
-  h.textContent = day;
-  calendar.appendChild(h);
-});
+  weekdays.forEach(day => {
+    const h = document.createElement("div");
+    h.className = "weekday";
+    h.textContent = day;
+    calendar.appendChild(h);
+  });
 
   const firstDay = new Date(year,month,1).getDay();
   const daysInMonth = new Date(year,month+1,0).getDate();
 
-  for(let i=0;i<firstDay;i++){
-    calendar.appendChild(document.createElement("div"));
-  }
+  for(let i=0;i<firstDay;i++) calendar.appendChild(document.createElement("div"));
 
   for(let day=1;day<=daysInMonth;day++){
     const dateKey = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
@@ -130,28 +123,22 @@ shortWeekdays.forEach(day => {
 
     cell.append(num,nameDiv);
 
-const isToday =
-  day === today.getDate() &&
-  month === today.getMonth() &&
-  year === today.getFullYear();
+    if(day===today.getDate() && month===today.getMonth() && year===today.getFullYear()){
+      cell.classList.add("today");
+    }
 
-if ([0,4,5,6].includes(weekday)) {
-  cell.className = "day disabled";
-  if (isToday) cell.classList.add("today");
-  calendar.appendChild(cell);
-  continue;
-}
-
-if (isToday) {
-  cell.classList.add("today");
-}
+    if([0,4,5,6].includes(weekday)){
+      cell.className="day disabled";
+      calendar.appendChild(cell);
+      continue;
+    }
 
     if(reservations[dateKey]){
       cell.classList.remove("available");
 
       if(reservations[dateKey]===OFF_VALUE){
         cell.classList.add("off-day");
-        nameDiv.textContent="No meeting today";
+        nameDiv.textContent="No devotional today";
       } else {
         cell.classList.add("taken");
         nameDiv.textContent=reservations[dateKey];
@@ -174,41 +161,44 @@ if (isToday) {
         cell.classList.add("selected");
       }
 
-      updateConfirmButton();
+      confirmBtn.style.display = selectedDates.length>0 ? "inline-block":"none";
     });
 
     calendar.appendChild(cell);
   }
 }
 
-/* ====================== CONFIRM ====================== */
+/* ======================
+   CONFIRM BUTTON FLOW
+====================== */
 confirmBtn.onclick=()=>{
-  const name = prompt("Enter your name:");
+  const name=prompt("Enter your name:");
   if(!name) return;
 
-  const cleaned = name.trim();
-  const finalValue = cleaned.toLowerCase()==="off" ? OFF_VALUE : cleaned;
-
-  selectedDates.forEach(d => reservations[d] = finalValue);
+  selectedDates.forEach(d=> reservations[d]=name.trim());
   saveReservations();
 
-  pendingCalendarData = { name: finalValue, dates:[...selectedDates] };
+  pendingCalendarData = {
+    name:name.trim(),
+    dates:[...selectedDates]
+  };
 
+  selectedDates=[];
+  confirmBtn.style.display="none";
   renderCalendar();
+
   calendarModal.classList.remove("hidden");
 };
 
-/* ====================== MODALS ====================== */
-addToCalendarBtn.onclick = () => {
-  if (pendingCalendarData) {
-    generateMultiICS(
-      pendingCalendarData.name,
-      pendingCalendarData.dates
-    );
+/* ======================
+   CALENDAR MODAL
+====================== */
+addToCalendarBtn.onclick=()=>{
+  if(pendingCalendarData){
+    generateMultiICS(pendingCalendarData.name,pendingCalendarData.dates);
   }
-
   calendarModal.classList.add("hidden");
-  pendingCalendarData = null;
+  pendingCalendarData=null;
 };
 
 skipCalendarBtn.onclick=()=>{
@@ -216,34 +206,35 @@ skipCalendarBtn.onclick=()=>{
   pendingCalendarData=null;
 };
 
-editEntryBtn.onclick = () => {
-  const val = prompt("Edit name or type OFF:", reservations[activeDateKey]);
-  if (!val) return;
+/* ======================
+   EDIT / REMOVE
+====================== */
+editEntryBtn.onclick=()=>{
+  const val=prompt("Edit name or type OFF:",reservations[activeDateKey]);
+  if(!val) return;
 
-  reservations[activeDateKey] =
-    val.trim().toLowerCase() === "off"
-      ? OFF_VALUE
-      : val.trim();
+  reservations[activeDateKey]=
+    val.trim().toLowerCase()==="off"?OFF_VALUE:val.trim();
 
   saveReservations();
-  renderCalendar();
-
   entryModal.classList.add("hidden");
+  renderCalendar();
 };
 
-removeEntryBtn.onclick = () => {
+removeEntryBtn.onclick=()=>{
   delete reservations[activeDateKey];
   saveReservations();
+  entryModal.classList.add("hidden");
   renderCalendar();
+};
 
+cancelEntryBtn.onclick=()=>{
   entryModal.classList.add("hidden");
 };
 
-cancelEntryBtn.onclick = () => {
-  entryModal.classList.add("hidden");
-};
-
-/* ====================== NAVIGATION ====================== */
+/* ======================
+   NAVIGATION
+====================== */
 prevBtn.onclick=()=>{
   currentDate.setMonth(currentDate.getMonth()-1);
   renderCalendar();
@@ -253,15 +244,5 @@ nextBtn.onclick=()=>{
   currentDate.setMonth(currentDate.getMonth()+1);
   renderCalendar();
 };
-
-/* ======================
-   LIGHT / DARK MODE
-====================== */
-
-const modeToggle = document.getElementById("mode-toggle");
-
-modeToggle.addEventListener("change", () => {
-  document.body.classList.toggle("dark-mode", modeToggle.checked);
-});
 
 renderCalendar();
